@@ -89,11 +89,27 @@ scripts/validate_task.sh tasks/<slug>
 ## Launch a campaign
 
 Scaffolded repositories are initialized on `agent/root`. Bootstrap requires a
-clean working tree, CUDA-visible PyTorch, `uv`, and `nvidia-smi`.
+clean working tree and `uv`. It auto-detects GPUs when available, but CPU-only
+campaigns are supported.
 
 ```
 scripts/bootstrap.sh task=<slug> run_tag=<run_tag>
 ```
+
+Force CPU mode with one or more CPU slots:
+
+```
+scripts/bootstrap.sh task=<slug> run_tag=<run_tag> device=cpu n_slots=1
+```
+
+Force specific GPU ids when a task requires GPU execution:
+
+```
+scripts/bootstrap.sh task=<slug> run_tag=<run_tag> device=gpu gpus=0,1
+```
+
+The root template does not prescribe a specific ML stack. Put task-specific CPU
+or GPU packages in the task pack's `requirements.txt`.
 
 For an example task:
 

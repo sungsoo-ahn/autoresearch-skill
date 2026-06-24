@@ -12,7 +12,8 @@ policy.
 - `methods.md`: prior methods, baselines, and novelty boundary.
 - `prepare.py`: idempotent setup into `data/<slug>/`.
 - `evaluate.py`: fixed evaluator for candidate artifacts.
-- `requirements.txt`: task-specific dependencies.
+- `requirements.txt`: task-specific dependencies, including CPU/GPU ML stack
+  choices when needed.
 - `smoke.md`: cheap pre-run checks.
 
 ## Manifest Shape

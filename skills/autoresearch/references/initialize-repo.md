@@ -13,7 +13,8 @@ Lock these before writing files:
 - primary metric, direction, expected range, noise estimate, and timeout
 - fixed evaluator behavior and invalid-output policy
 - candidate artifacts and allowed output paths
-- compute assumptions: CPU/GPU, memory, wall-clock budget, package policy
+- compute assumptions: CPU/GPU, memory, wall-clock budget, package policy, and
+  whether GPU is required or merely preferred
 - what candidates may read during training, validation, and test
 - off-limits files, public APIs, and compatibility constraints
 - prior methods and novelty boundary
@@ -69,6 +70,18 @@ then run:
 
 ```bash
 scripts/bootstrap.sh task=<slug> run_tag=<run_tag>
+```
+
+For CPU-only campaigns:
+
+```bash
+scripts/bootstrap.sh task=<slug> run_tag=<run_tag> device=cpu n_slots=1
+```
+
+For GPU-required tasks:
+
+```bash
+scripts/bootstrap.sh task=<slug> run_tag=<run_tag> device=gpu gpus=0
 ```
 
 For a bundled example:

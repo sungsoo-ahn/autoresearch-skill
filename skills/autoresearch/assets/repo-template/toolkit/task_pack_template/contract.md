@@ -26,7 +26,7 @@ Define the fixed evaluator command and invalid-output behavior.
 
 ## Constraints
 
-- Resource limits.
-- Runtime package policy.
+- Resource limits, including whether CPU is acceptable or GPU is required.
+- Runtime package policy, including task-specific CPU/GPU dependency choices.
 - Checkpoint/output policy.
 - Any domain-specific validity rules.

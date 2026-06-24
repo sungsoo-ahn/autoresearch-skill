@@ -18,7 +18,8 @@ run. Use the task pack's smoke checklist.
 
 # Input
 
-`task_dir`, `smoke_seconds`, `vram_total_mb`, `gpu`, `python`, `cwd`.
+`task_dir`, `smoke_seconds`, `device_mode`, `device`, `vram_total_mb`,
+`python`, `cwd`.
 
 # Setup
 
@@ -26,12 +27,15 @@ Set:
 
 ```
 PY=<python>
-GPU=<gpu>
+DEVICE_MODE=<device_mode>
+DEVICE=<device>
 WT=<cwd>
 ```
 
-Run from `$WT`. Prefix GPU probes with `CUDA_VISIBLE_DEVICES=$GPU`. Tee all
-diagnostic output to `$WT/runs/staging-smoke/smoke.log`.
+Run from `$WT`. For GPU probes, prefix commands with
+`CUDA_VISIBLE_DEVICES=$DEVICE`. For CPU probes, do not set
+`CUDA_VISIBLE_DEVICES`. Tee all diagnostic output to
+`$WT/runs/staging-smoke/smoke.log`.
 
 # Do
 

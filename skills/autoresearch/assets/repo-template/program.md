@@ -10,10 +10,11 @@ prompt files for these roles.
 ## Startup
 
 `runs/<task_slug>/<run_tag>/campaign.json` is the durable source of truth. It
-contains `task_slug`, `task_path`, `run_tag`, `gpus`, `n_slots`,
-`vram_total_mb`, `max_minutes`, `smoke_seconds`, `noise_sigma`, metric metadata,
-and `candidate_entry`. Read it at launch, before every dispatch, and during
-recovery. Do not reconstruct campaign config from the prompt.
+contains `task_slug`, `task_path`, `run_tag`, `device_mode`, `devices`,
+`n_slots`, `vram_total_mb`, `max_minutes`, `smoke_seconds`, `noise_sigma`,
+metric metadata, and `candidate_entry`. Read it at launch, before every
+dispatch, and during recovery. Do not reconstruct campaign config from the
+prompt.
 
 ## Hard rules
 
@@ -53,7 +54,7 @@ Selection policy:
 
 - `$N` slot index `0..n_slots-1`
 - `$WT=.worktrees/slot-$N`
-- `$GPU=gpus[$N]`
+- `$DEVICE=devices[$N]` (`cpu<i>` for CPU slots, GPU id for GPU slots)
 - `$PY=$WT/runs/staging/.venv/bin/python`
 - `$BRANCH=agent/<task_slug>/<run_tag>/n<i>-<op>`
 - `parent_ref=<parent_sha>` for improve/debug, `agent/root` for draft
@@ -75,13 +76,13 @@ Selection policy:
    ```
    scripts/slot_register.sh $N
    ```
-5. Dispatch `smoke` with `task_dir`, `gpu`, `vram_total_mb`, `smoke_seconds`,
-   `python`, and `cwd`.
+5. Dispatch `smoke` with `task_dir`, `device_mode`, `device`,
+   `vram_total_mb`, `smoke_seconds`, `python`, and `cwd`.
    - `pass` -> remove `$WT/runs/staging-smoke` and continue
    - `fail` -> `scripts/slot_parse.sh $N <task_slug> <run_tag> --smoke`, then analyze/finalize
 6. Run:
    ```
-   scripts/slot_run.sh $N $GPU $PY <task_slug> <run_tag> <max_minutes>
+   scripts/slot_run.sh $N $DEVICE $PY <task_slug> <run_tag> <max_minutes>
    ```
 7. On `.slots/events.log` line `slot=$N exit=<code>`, parse:
    ```

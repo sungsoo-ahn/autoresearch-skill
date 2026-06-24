@@ -76,6 +76,11 @@ scripts/validate_task.sh examples/csp
 scripts/bootstrap.sh task=csp task_path=examples/csp run_tag=<run_tag>
 ```
 
+The generated repo is compute-neutral by default. Use `device=cpu n_slots=1`
+for CPU-only campaigns, or `device=gpu gpus=0,1` when a task requires specific
+GPUs. Task-specific CPU/GPU packages belong in the task pack's
+`requirements.txt`.
+
 For a new task, ask `$autoresearch` to interview you and create
 `tasks/<slug>/`, then commit that task pack before bootstrap.
 

@@ -16,7 +16,8 @@ You must lock:
 - fixed evaluator behavior and timeout expectations
 - candidate artifacts and allowed output paths
 - required candidate CLI behavior beyond the root contract, if any
-- resource constraints: GPU/CPU assumptions, memory, wall-clock budget
+- resource constraints: CPU/GPU assumptions, memory, wall-clock budget,
+  package policy, and whether GPU is required or merely preferred
 - what data candidates may read during training and evaluation
 - prior methods, baselines, and novelty boundaries for `idea`
 - smoke checks that cheaply catch broken candidates

@@ -1,20 +1,22 @@
 #!/usr/bin/env bash
 # Campaign startup for a task pack: validate the task, build a campaign-local
-# base venv, prepare task data, detect hardware, and freeze campaign.json.
-# Usage: bootstrap.sh task=<slug> run_tag=<tag> [task_path=<path>] [gpus=all] [max_minutes=<task default>] [smoke_seconds=<task default>] [noise_sigma=<task default>]
+# base venv, prepare task data, detect compute resources, and freeze campaign.json.
+# Usage: bootstrap.sh task=<slug> run_tag=<tag> [task_path=<path>] [device=auto|gpu|cpu] [gpus=all] [n_slots=<cpu slots>] [max_minutes=<task default>] [smoke_seconds=<task default>] [noise_sigma=<task default>]
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
 UV="$(command -v uv || echo "$HOME/.local/bin/uv")"
 PYTHON_SPEC="3.13"
 
-task=""; task_path=""; run_tag=""; gpus="all"; max_minutes=""; smoke_seconds=""; noise_sigma=""
+task=""; task_path=""; run_tag=""; device="auto"; gpus="all"; n_slots_arg=""; max_minutes=""; smoke_seconds=""; noise_sigma=""
 for kv in "$@"; do
   case "$kv" in
     task=*)          task="${kv#*=}" ;;
     task_path=*)     task_path="${kv#*=}" ;;
     run_tag=*)       run_tag="${kv#*=}" ;;
+    device=*)        device="${kv#*=}" ;;
     gpus=*)          gpus="${kv#*=}" ;;
+    n_slots=*)       n_slots_arg="${kv#*=}" ;;
     max_minutes=*)   max_minutes="${kv#*=}" ;;
     smoke_seconds=*) smoke_seconds="${kv#*=}" ;;
     noise_sigma=*)   noise_sigma="${kv#*=}" ;;
@@ -29,6 +31,10 @@ case "$task" in
 esac
 case "$run_tag" in
   *[!a-zA-Z0-9_-]*|"") echo "bootstrap: run_tag must match [A-Za-z0-9_-]+" >&2; exit 2 ;;
+esac
+case "$device" in
+  auto|gpu|cpu) ;;
+  *) echo "bootstrap: device must be auto, gpu, or cpu" >&2; exit 2 ;;
 esac
 
 if [ -z "$task_path" ]; then
@@ -91,23 +97,49 @@ mkdir -p "$run_root" "$data_dir"
 "$UV" venv --python "$PYTHON_SPEC" "$base_venv"
 VIRTUAL_ENV="$base_venv" "$UV" pip install --quiet -r requirements.txt
 VIRTUAL_ENV="$base_venv" "$UV" pip install --quiet -r "$task_path/requirements.txt"
-"$base_venv/bin/python" -c "import torch; assert torch.cuda.is_available(), 'CUDA not available'" \
-  || { echo "bootstrap: CUDA gate failed (venv can't see the GPU)" >&2; exit 1; }
 VIRTUAL_ENV="$base_venv" "$UV" pip freeze > "${run_root}/base.lock"
 
 # --- task data setup ---
 "$base_venv/bin/python" prepare.py --task_dir "$task_path" --out_dir "$data_dir"
 
-# --- hardware detection ---
-if [ "$gpus" = "all" ]; then
-  mapfile -t gpu_ids < <(nvidia-smi --query-gpu=index --format=csv,noheader)
-  gpus="$(IFS=,; echo "${gpu_ids[*]}")"
-else
-  IFS=',' read -r -a gpu_ids <<< "$gpus"
+# --- compute resource detection ---
+device_mode="$device"
+if [ "$device_mode" = "auto" ]; then
+  if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi -L >/dev/null 2>&1; then
+    device_mode="gpu"
+  else
+    device_mode="cpu"
+  fi
 fi
-n_slots="${#gpu_ids[@]}"
-[ "$n_slots" -ge 1 ] || { echo "bootstrap: no GPUs detected" >&2; exit 1; }
-vram_total_mb="$(nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits | sort -n | head -1)"
+
+if [ "$device_mode" = "gpu" ]; then
+  command -v nvidia-smi >/dev/null 2>&1 \
+    || { echo "bootstrap: device=gpu requires nvidia-smi" >&2; exit 1; }
+  if [ "$gpus" = "all" ]; then
+    mapfile -t device_ids < <(nvidia-smi --query-gpu=index --format=csv,noheader)
+  else
+    IFS=',' read -r -a device_ids <<< "$gpus"
+  fi
+  n_slots="${#device_ids[@]}"
+  [ "$n_slots" -ge 1 ] || { echo "bootstrap: no GPUs detected" >&2; exit 1; }
+  devices="$(IFS=,; echo "${device_ids[*]}")"
+  vram_total_mb="$(nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits | sort -n | head -1)"
+else
+  if [ -z "$n_slots_arg" ]; then
+    n_slots_arg="1"
+  fi
+  case "$n_slots_arg" in
+    *[!0-9]*|"") echo "bootstrap: n_slots must be a positive integer for device=cpu" >&2; exit 2 ;;
+  esac
+  [ "$n_slots_arg" -ge 1 ] || { echo "bootstrap: n_slots must be >= 1" >&2; exit 2; }
+  n_slots="$n_slots_arg"
+  device_ids=()
+  for ((i=0; i<n_slots; i++)); do
+    device_ids+=("cpu${i}")
+  done
+  devices="$(IFS=,; echo "${device_ids[*]}")"
+  vram_total_mb=0
+fi
 
 # --- persist campaign.json ---
 "$base_venv/bin/python" - "$run_root/campaign.json" <<PY
@@ -116,7 +148,8 @@ config = {
     "task_slug": "${task}",
     "task_path": "${task_path}",
     "run_tag": "${run_tag}",
-    "gpus": "${gpus}",
+    "device_mode": "${device_mode}",
+    "devices": "${devices}",
     "n_slots": ${n_slots},
     "vram_total_mb": ${vram_total_mb},
     "max_minutes": float("${max_minutes}"),
@@ -132,4 +165,4 @@ with open("${run_root}/campaign.json", "w", encoding="utf-8") as fh:
     fh.write("\\n")
 PY
 
-echo "bootstrap ok: task=${task} run_tag=${run_tag} gpus=${gpus} n_slots=${n_slots} vram_total_mb=${vram_total_mb} max_minutes=${max_minutes} smoke_seconds=${smoke_seconds} noise_sigma=${noise_sigma}"
+echo "bootstrap ok: task=${task} run_tag=${run_tag} device=${device_mode} devices=${devices} n_slots=${n_slots} vram_total_mb=${vram_total_mb} max_minutes=${max_minutes} smoke_seconds=${smoke_seconds} noise_sigma=${noise_sigma}"

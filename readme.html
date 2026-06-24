@@ -544,6 +544,14 @@ cp -R skills/autoresearch "${CODEX_HOME:-$HOME/.codex}/skills/autoresearch"</cod
         print <code>primary_metric: nan</code> when the candidate can exit
         cleanly.
       </p>
+      <h3>Compute selection</h3>
+      <p>
+        The generated repo is compute-neutral. It records the selected compute
+        mode in <code>campaign.json</code> and leaves task-specific ML stacks to
+        each task pack's <code>requirements.txt</code>.
+      </p>
+      <pre><code>scripts/bootstrap.sh task=&lt;slug&gt; run_tag=&lt;run_tag&gt; device=cpu n_slots=1
+scripts/bootstrap.sh task=&lt;slug&gt; run_tag=&lt;run_tag&gt; device=gpu gpus=0,1</code></pre>
     </section>
 
     <section id="adapters">
