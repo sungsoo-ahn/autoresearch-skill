@@ -74,6 +74,7 @@ Inside the generated repository:
 ```
 scripts/validate_task.sh examples/csp
 scripts/bootstrap.sh task=csp task_path=examples/csp run_tag=<run_tag>
+scripts/autoresearch_launch.sh task=csp run_tag=<run_tag>
 ```
 
 The generated repo is compute-neutral by default. Use `device=cpu n_slots=1`
@@ -83,6 +84,13 @@ GPUs. Task-specific CPU/GPU packages belong in the task pack's
 
 For a new task, ask `$autoresearch` to interview you and create
 `tasks/<slug>/`, then commit that task pack before bootstrap.
+
+The launcher prints a persistent orchestration prompt by default. It can also
+repeatedly invoke an agent CLI that accepts prompts on standard input:
+
+```
+scripts/autoresearch_launch.sh task=<slug> run_tag=<run_tag> -- <agent command...>
+```
 
 ## Validation
 

@@ -27,6 +27,7 @@ Default repository contract:
 - task pack path: `tasks/<slug>/` or `examples/<slug>/`
 - campaign branches: `agent/<task_slug>/<run_tag>/*`
 - artifacts: `runs/<task_slug>/<run_tag>/<sha>/`
+- launch/resume entrypoint: `scripts/autoresearch_launch.sh`
 
 ## Scaffolding Commands
 
@@ -47,6 +48,8 @@ python skills/autoresearch/scripts/scaffold_repo.py \
 
 Validate generated task packs with the generated repo's
 `scripts/validate_task.sh`.
+After bootstrap, use the generated repo's `scripts/autoresearch_launch.sh` to
+produce a persistent prompt or repeatedly invoke an agent command.
 
 ## Discipline
 

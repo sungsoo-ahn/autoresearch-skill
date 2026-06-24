@@ -20,6 +20,9 @@ prompt.
 
 - Dispatch only these roles: `idea`, `draft`, `improve`, `debug`, `smoke`,
   `analyze`.
+- Continue until the human explicitly stops the campaign, changes the task
+  contract, or an external blocker prevents useful progress after recovery. Do
+  not stop after one candidate, one slot cycle, one summary, or one good result.
 - Run candidates only via `scripts/slot_run.sh`; `smoke` may run probes inside
   its own subagent.
 - Generated implementation file is always `candidate.py`.
@@ -99,6 +102,12 @@ Selection policy:
     next candidate.
 
 ## Recovery
+
+Preferred user entrypoint:
+
+```
+scripts/autoresearch_launch.sh task=<task_slug> run_tag=<run_tag>
+```
 
 Read `runs/<task_slug>/<run_tag>/campaign.json`, then:
 

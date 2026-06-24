@@ -552,6 +552,19 @@ cp -R skills/autoresearch "${CODEX_HOME:-$HOME/.codex}/skills/autoresearch"</cod
       </p>
       <pre><code>scripts/bootstrap.sh task=&lt;slug&gt; run_tag=&lt;run_tag&gt; device=cpu n_slots=1
 scripts/bootstrap.sh task=&lt;slug&gt; run_tag=&lt;run_tag&gt; device=gpu gpus=0,1</code></pre>
+      <h3>Launch and resume</h3>
+      <p>
+        After bootstrap, use the generated launch script. With no agent command
+        it prints a persistent orchestration prompt for any coding-agent UI.
+      </p>
+      <pre><code>scripts/autoresearch_launch.sh task=&lt;slug&gt; run_tag=&lt;run_tag&gt;</code></pre>
+      <p>
+        To keep a CLI-based agent running, pass the command after
+        <code>--</code>. The launcher repeats indefinitely by default
+        (<code>max_turns=0</code>) and stops only when the user interrupts it or
+        repeated command failures hit <code>max_failures</code>.
+      </p>
+      <pre><code>scripts/autoresearch_launch.sh task=&lt;slug&gt; run_tag=&lt;run_tag&gt; -- &lt;agent command...&gt;</code></pre>
     </section>
 
     <section id="adapters">

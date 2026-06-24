@@ -26,7 +26,7 @@ The original CSP/HACO material is preserved only as a runnable living example in
 +-- prepare.py                  wrapper around a task pack's prepare.py
 +-- evaluate.py                 wrapper around a task pack's evaluate.py
 +-- requirements.txt            generic base dependencies
-+-- scripts/                    bootstrap and slot lifecycle scripts
++-- scripts/                    bootstrap, launch, and slot lifecycle scripts
 +-- toolkit/                    initializer interview and task templates
 +-- examples/csp/               optional runnable CSP example task pack
 +-- tasks/                      generated task packs for active campaigns
@@ -120,9 +120,19 @@ scripts/bootstrap.sh task=csp task_path=examples/csp run_tag=<run_tag>
 Then start your coding agent and instruct it:
 
 ```
-You are the orchestrator of the autoresearch campaign task=<slug> run_tag=<run_tag>.
-Read program.md and runs/<slug>/<run_tag>/campaign.json, then run the loop.
+scripts/autoresearch_launch.sh task=<slug> run_tag=<run_tag>
 ```
+
+Without an agent command, the launcher prints a persistent orchestration prompt
+that can be pasted into any coding-agent UI. To repeatedly invoke an agent CLI
+that accepts prompts on standard input:
+
+```
+scripts/autoresearch_launch.sh task=<slug> run_tag=<run_tag> -- <agent command...>
+```
+
+The launcher defaults to `max_turns=0`, meaning it keeps relaunching the agent
+until the user stops it or repeated command failures hit `max_failures`.
 
 ## License
 

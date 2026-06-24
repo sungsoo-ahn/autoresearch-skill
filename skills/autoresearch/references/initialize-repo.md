@@ -89,3 +89,16 @@ For a bundled example:
 ```bash
 scripts/bootstrap.sh task=csp task_path=examples/csp run_tag=<run_tag>
 ```
+
+After bootstrap, tell the user to launch or resume the campaign with:
+
+```bash
+scripts/autoresearch_launch.sh task=<slug> run_tag=<run_tag>
+```
+
+This prints a persistent orchestration prompt when no agent command is supplied.
+It can also repeatedly invoke an agent CLI:
+
+```bash
+scripts/autoresearch_launch.sh task=<slug> run_tag=<run_tag> -- <agent command...>
+```
