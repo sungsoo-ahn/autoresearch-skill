@@ -1,0 +1,19 @@
+{
+  "slug": "csp",
+  "name": "Crystal Structure Prediction",
+  "candidate_entry": "candidate.py",
+  "metric": {
+    "name": "METRe match rate",
+    "direction": "maximize"
+  },
+  "defaults": {
+    "max_minutes": 120,
+    "smoke_seconds": 120,
+    "noise_sigma": 0.004
+  },
+  "artifacts": {
+    "data_dir": "data/csp",
+    "run_subdir": "runs/<run_name>",
+    "primary_samples": "runs/<run_name>/val_samples"
+  }
+}

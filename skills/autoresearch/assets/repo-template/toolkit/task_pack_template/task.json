@@ -1,0 +1,19 @@
+{
+  "slug": "example_slug",
+  "name": "Human-readable task name",
+  "candidate_entry": "candidate.py",
+  "metric": {
+    "name": "Primary metric display name",
+    "direction": "maximize"
+  },
+  "defaults": {
+    "max_minutes": 120,
+    "smoke_seconds": 120,
+    "noise_sigma": 0.0
+  },
+  "artifacts": {
+    "data_dir": "data/<slug>",
+    "run_subdir": "runs/<run_name>",
+    "primary_outputs": "runs/<run_name>/outputs"
+  }
+}

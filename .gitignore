@@ -1,0 +1,28 @@
+# Generated artifacts
+data/
+runs/
+checkpoints/
+wandb/
+repo_structure_report.html
+
+# Python caches / venv
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+.base-venv/
+.DS_Store
+
+# Parallel runtime
+.worktrees/
+.slots/
+
+# Auxiliary / non-execution material
+plots/
+CLAUDE.md
+figures/
+maskgxt/
+paper/
+blog/
+results/
+*.pdf

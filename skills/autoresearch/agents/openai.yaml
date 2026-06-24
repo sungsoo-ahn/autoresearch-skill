@@ -1,0 +1,4 @@
+interface:
+  display_name: "Autoresearch"
+  short_description: "Initialize autoresearch repos"
+  default_prompt: "Use $autoresearch to scaffold a new task-focused autoresearch repository."
