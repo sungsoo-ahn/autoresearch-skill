@@ -131,3 +131,32 @@ scripts/autoresearch_launch.sh task=<slug> run_tag=<run_tag> -- <agent command..
 
 Use `agent=prompt` to print the persistent orchestration prompt without running
 an agent.
+
+## Logging And Report
+
+Tell the user that campaign scripts automatically append structured events to:
+
+```bash
+runs/<slug>/<run_tag>/campaign_events.jsonl
+```
+
+They also refresh this self-contained HTML report:
+
+```bash
+runs/<slug>/<run_tag>/report.html
+```
+
+The report shows clickable idea nodes, green rings for nodes that raise the
+campaign-best metric, green parent-inspiration curves, and the campaign-best
+metric curve over wall-clock time. Rebuild it manually with:
+
+```bash
+python3 scripts/campaign_log.py render --task <slug> --run-tag <run_tag>
+```
+
+Add a manual note event when useful:
+
+```bash
+python3 scripts/campaign_log.py log --task <slug> --run-tag <run_tag> \
+  --event note --message "<human-readable note>"
+```

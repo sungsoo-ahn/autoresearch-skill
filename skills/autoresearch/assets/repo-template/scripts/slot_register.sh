@@ -26,4 +26,25 @@ fi
 git -C "$WT" commit --amend --allow-empty \
   -m "$body" \
   -m "hypothesis: $(cat "$hyp_file")"
+
+branch="$(git -C "$WT" rev-parse --abbrev-ref HEAD)"
+rel="${branch#agent/}"
+task_slug="${rel%%/*}"
+rest="${rel#*/}"
+run_tag="${rest%%/*}"
+subject="$(git -C "$WT" log -1 --format='%s')"
+op="${subject%%:*}"
+pair="$(printf '%s\n' "$body" | sed -n 's/^pair: //p' | head -1)"
+parent="$(printf '%s\n' "$body" | sed -n 's/^parent: //p' | head -1)"
+python3 scripts/campaign_log.py log \
+  --task "$task_slug" \
+  --run-tag "$run_tag" \
+  --event hypothesis_registered \
+  --slot "$N" \
+  --op "$op" \
+  --parent "$parent" \
+  --branch "$branch" \
+  --pair "$pair" \
+  --hypothesis-file "$hyp_file" \
+  --message "hypothesis registered" || true
 echo "slot_register ok: slot=${N}"

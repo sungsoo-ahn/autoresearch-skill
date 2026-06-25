@@ -119,12 +119,27 @@ scripts/autoresearch_launch.sh task=<slug> run_tag=<run_tag> -- <agent command..
 Use `agent=prompt` to print the persistent orchestration prompt without running
 an agent.
 
+Generated campaigns automatically append JSONL events and refresh an
+interactive report:
+
+```
+runs/<slug>/<run_tag>/campaign_events.jsonl
+runs/<slug>/<run_tag>/report.html
+```
+
+The report shows clickable idea nodes, green improvement rings,
+parent-inspiration curves, and a campaign-best metric curve. Rebuild it with:
+
+```
+python3 scripts/campaign_log.py render --task <slug> --run-tag <run_tag>
+```
+
 ## Validation
 
 Useful checks while developing this skill:
 
 ```
-python3 -B -c 'import pathlib; [compile(pathlib.Path(p).read_text(), p, "exec") for p in ["skills/autoresearch/scripts/scaffold_repo.py", "skills/autoresearch/assets/repo-template/prepare.py", "skills/autoresearch/assets/repo-template/evaluate.py"]]'
+python3 -B -c 'import pathlib; [compile(pathlib.Path(p).read_text(), p, "exec") for p in ["skills/autoresearch/scripts/scaffold_repo.py", "skills/autoresearch/assets/repo-template/prepare.py", "skills/autoresearch/assets/repo-template/evaluate.py", "skills/autoresearch/assets/repo-template/scripts/campaign_log.py"]]'
 bash -n skills/autoresearch/assets/repo-template/scripts/*.sh
 tmp="$(mktemp -d)" && mkdir "$tmp/repo" "$tmp/repo/.omx" && python skills/autoresearch/scripts/scaffold_repo.py --target "$tmp/repo" --name Smoke --no-git
 ```

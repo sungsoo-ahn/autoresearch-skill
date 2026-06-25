@@ -145,6 +145,12 @@ EOF
 if [ "${#agent_cmd[@]}" -eq 0 ]; then
   if [ "$agent" = "prompt" ]; then
     write_prompt 0
+    python3 scripts/campaign_log.py log \
+      --task "$task" \
+      --run-tag "$run_tag" \
+      --event prompt_printed \
+      --round 0 \
+      --message "persistent prompt printed for manual agent UI" || true
     echo
     echo "agent=prompt selected. Paste the prompt below into your agent UI,"
     echo "or rerun with: scripts/autoresearch_launch.sh task=${task} run_tag=${run_tag} -- <agent command...>"
@@ -183,6 +189,12 @@ while true; do
 
   round=$((round + 1))
   write_prompt "$round"
+  python3 scripts/campaign_log.py log \
+    --task "$task" \
+    --run-tag "$run_tag" \
+    --event round_start \
+    --round "$round" \
+    --message "agent round started" || true
   echo "autoresearch_launch: starting round ${round} with command: ${agent_cmd[*]}"
   set +e
   AUTORESEARCH_TASK="$task" \
@@ -198,6 +210,13 @@ while true; do
 
   if [ "$rc" -ne 0 ]; then
     failures=$((failures + 1))
+    python3 scripts/campaign_log.py log \
+      --task "$task" \
+      --run-tag "$run_tag" \
+      --event round_end \
+      --round "$round" \
+      --status failed \
+      --message "agent command exited ${rc}; failure ${failures}/${max_failures}" || true
     echo "autoresearch_launch: agent command exited ${rc} (failure ${failures}/${max_failures})" >&2
     if [ "$max_failures" -ne 0 ] && [ "$failures" -ge "$max_failures" ]; then
       echo "autoresearch_launch: stopping after repeated agent command failures" >&2
@@ -205,6 +224,13 @@ while true; do
     fi
   else
     failures=0
+    python3 scripts/campaign_log.py log \
+      --task "$task" \
+      --run-tag "$run_tag" \
+      --event round_end \
+      --round "$round" \
+      --status ok \
+      --message "agent round completed" || true
   fi
 
   sleep "$sleep_seconds"

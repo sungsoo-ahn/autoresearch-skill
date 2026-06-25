@@ -45,4 +45,15 @@ msg_args=(-m "${op}: [RUNNING]" -m "pair: ${pair}")
 [ -n "$parent_sha" ] && msg_args+=(-m "parent: ${parent_sha}")
 git -C "$WT" commit --allow-empty "${msg_args[@]}"
 
+python3 scripts/campaign_log.py log \
+  --task "$task_slug" \
+  --run-tag "$run_tag" \
+  --event slot_setup \
+  --slot "$N" \
+  --op "$op" \
+  --parent "$parent_sha" \
+  --branch "$branch" \
+  --pair-file "$pair_file" \
+  --message "slot setup from ${venv_src} environment" || true
+
 echo "slot_setup ok: slot=${N} branch=${branch} task=${task_slug} venv=${venv_src}"

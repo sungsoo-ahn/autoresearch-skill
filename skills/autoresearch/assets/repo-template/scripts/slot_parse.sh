@@ -31,4 +31,13 @@ status=${status}
 primary_metric=${primary_metric}
 ENV
 
+python3 scripts/campaign_log.py log \
+  --task "$task_slug" \
+  --run-tag "$run_tag" \
+  --event slot_parse \
+  --slot "$N" \
+  --status "$status" \
+  --primary-metric "$primary_metric" \
+  --message "candidate result parsed" || true
+
 echo "slot_parse ok: slot=${N} task=${task_slug} status=${status} primary_metric=${primary_metric:-}"

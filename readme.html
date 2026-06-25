@@ -542,6 +542,14 @@ cp -R skills/autoresearch "${CODEX_HOME:-$HOME/.codex}/skills/autoresearch"</cod
             <td>Artifacts</td>
             <td><code>runs/&lt;task_slug&gt;/&lt;run_tag&gt;/&lt;sha&gt;/</code></td>
           </tr>
+          <tr>
+            <td>Event log</td>
+            <td><code>runs/&lt;task_slug&gt;/&lt;run_tag&gt;/campaign_events.jsonl</code></td>
+          </tr>
+          <tr>
+            <td>Interactive report</td>
+            <td><code>runs/&lt;task_slug&gt;/&lt;run_tag&gt;/report.html</code></td>
+          </tr>
         </tbody>
       </table>
       <h3>Candidate CLI</h3>
@@ -589,6 +597,20 @@ scripts/bootstrap.sh task=&lt;slug&gt; run_tag=&lt;run_tag&gt; device=gpu gpus=0
         without running an agent.
       </p>
       <pre><code>scripts/autoresearch_launch.sh task=&lt;slug&gt; run_tag=&lt;run_tag&gt; -- &lt;agent command...&gt;</code></pre>
+      <h3>Interactive report</h3>
+      <p>
+        Lifecycle scripts automatically append structured JSONL events and
+        refresh a self-contained HTML report with clickable idea nodes, green
+        rings for campaign-best improvements, parent-inspiration curves, and a
+        campaign-best metric curve.
+      </p>
+      <pre><code>runs/&lt;slug&gt;/&lt;run_tag&gt;/campaign_events.jsonl
+runs/&lt;slug&gt;/&lt;run_tag&gt;/report.html</code></pre>
+      <p>
+        Rebuild the report manually or add a note event:
+      </p>
+      <pre><code>python3 scripts/campaign_log.py render --task &lt;slug&gt; --run-tag &lt;run_tag&gt;
+python3 scripts/campaign_log.py log --task &lt;slug&gt; --run-tag &lt;run_tag&gt; --event note --message "&lt;note&gt;"</code></pre>
     </section>
 
     <section id="adapters">
@@ -635,7 +657,7 @@ scripts/bootstrap.sh task=&lt;slug&gt; run_tag=&lt;run_tag&gt; device=gpu gpus=0
       <p>
         Useful checks while developing the skill package:
       </p>
-      <pre><code>python3 -B -c 'import pathlib; [compile(pathlib.Path(p).read_text(), p, "exec") for p in ["skills/autoresearch/scripts/scaffold_repo.py", "skills/autoresearch/assets/repo-template/prepare.py", "skills/autoresearch/assets/repo-template/evaluate.py"]]'
+      <pre><code>python3 -B -c 'import pathlib; [compile(pathlib.Path(p).read_text(), p, "exec") for p in ["skills/autoresearch/scripts/scaffold_repo.py", "skills/autoresearch/assets/repo-template/prepare.py", "skills/autoresearch/assets/repo-template/evaluate.py", "skills/autoresearch/assets/repo-template/scripts/campaign_log.py"]]'
 bash -n skills/autoresearch/assets/repo-template/scripts/*.sh
 tmp="$(mktemp -d)" && mkdir "$tmp/repo" "$tmp/repo/.omx" && python skills/autoresearch/scripts/scaffold_repo.py --target "$tmp/repo" --name Smoke --no-git
 ruby -ryaml -e 'front = File.read("skills/autoresearch/SKILL.md").match(/\A---\n(.*?)\n---/m)[1]; YAML.safe_load(front); puts "skill yaml ok"'</code></pre>

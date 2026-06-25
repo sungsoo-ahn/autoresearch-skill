@@ -12,6 +12,10 @@ WT=".worktrees/slot-${N}"
 repo="$PWD"
 run_root="$repo/runs/${task_slug}/${run_tag}"
 staging="$WT/runs/staging"
+branch=""
+pair=""
+hypothesis=""
+finding=""
 
 if [ ! -d "$WT" ]; then
   echo "slot_finalize: slot=${N} already finalized (no worktree)"; exit 0
@@ -44,11 +48,27 @@ else
 fi
 
 sha="$(git -C "$WT" rev-parse --short HEAD)"
+branch="$(git -C "$WT" rev-parse --abbrev-ref HEAD)"
 mkdir -p "$run_root"
 if [ -d "$staging/.venv" ]; then
   VIRTUAL_ENV="$staging/.venv" "$UV" pip freeze > "$staging/requirements.lock"
 fi
 [ -d "$staging" ] && mv "$staging" "${run_root}/${sha}"
+python3 scripts/campaign_log.py log \
+  --task "$task_slug" \
+  --run-tag "$run_tag" \
+  --event slot_finalize \
+  --slot "$N" \
+  --op "$prefix" \
+  --parent "$parent_sha" \
+  --branch "$branch" \
+  --sha "$sha" \
+  --status "$status" \
+  --primary-metric "$primary_metric" \
+  --pair "$pair" \
+  --hypothesis "$hypothesis" \
+  --finding "$finding" \
+  --message "slot finalized" || true
 git worktree remove --force "$WT"
 
 echo "slot_finalize ok: slot=${N} task=${task_slug} sha=${sha} tag=${tag}"

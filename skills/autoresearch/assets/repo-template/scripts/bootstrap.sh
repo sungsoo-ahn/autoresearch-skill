@@ -165,6 +165,14 @@ with open("${run_root}/campaign.json", "w", encoding="utf-8") as fh:
     fh.write("\\n")
 PY
 
+python3 scripts/campaign_log.py log \
+  --task "$task" \
+  --run-tag "$run_tag" \
+  --event campaign_bootstrap \
+  --status ok \
+  --message "bootstrap complete; report initialized" || true
+
 echo "bootstrap ok: task=${task} run_tag=${run_tag} device=${device_mode} devices=${devices} n_slots=${n_slots} vram_total_mb=${vram_total_mb} max_minutes=${max_minutes} smoke_seconds=${smoke_seconds} noise_sigma=${noise_sigma}"
 echo "next: start the persistent Bash round loop:"
 echo "  scripts/autoresearch_launch.sh task=${task} run_tag=${run_tag}"
+echo "report: runs/${task}/${run_tag}/report.html"

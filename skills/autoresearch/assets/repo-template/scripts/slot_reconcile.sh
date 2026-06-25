@@ -24,3 +24,10 @@ for ((N=0; N<n_slots; N++)); do
     echo "slot=${N} stalled -> cleaned (task=${task_slug} run=${run_tag})"
   fi
 done
+
+python3 scripts/campaign_log.py log \
+  --task "$task_slug" \
+  --run-tag "$run_tag" \
+  --event slot_reconcile \
+  --message "reconciled ${n_slots} slots" \
+  --no-render || true

@@ -27,6 +27,8 @@ Default repository contract:
 - task pack path: `tasks/<slug>/` or `examples/<slug>/`
 - campaign branches: `agent/<task_slug>/<run_tag>/*`
 - artifacts: `runs/<task_slug>/<run_tag>/<sha>/`
+- campaign event log: `runs/<task_slug>/<run_tag>/campaign_events.jsonl`
+- interactive report: `runs/<task_slug>/<run_tag>/report.html`
 - launch/resume entrypoint: `scripts/autoresearch_launch.sh`
 
 ## Scaffolding Commands
@@ -60,6 +62,10 @@ the campaign prompt on stdin, exports `AUTORESEARCH_ROUND`, reconciles slots,
 then sleeps before the next round. It uses local `codex exec` by default. Pass
 an explicit command after `--` to use a different agent, or use `agent=prompt`
 to print the persistent prompt without running an agent.
+The generated lifecycle scripts append JSONL events and refresh
+`runs/<task_slug>/<run_tag>/report.html`, a self-contained interactive report
+with idea nodes, improvement rings, parent-inspiration arcs, and a campaign-best
+metric curve.
 
 ## Discipline
 

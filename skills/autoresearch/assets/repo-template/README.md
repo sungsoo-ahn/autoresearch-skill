@@ -13,6 +13,8 @@ The harness provides:
 - fixed task packs for data setup, scoring, contracts, novelty boundaries, and
   smoke checks
 - campaign artifacts under `runs/<task>/<run>/<sha>/`
+- automatic JSONL campaign logging and an interactive HTML report at
+  `runs/<task>/<run>/report.html`
 
 The original CSP/HACO material is preserved only as a runnable living example in
 `examples/csp/` when included by the scaffolder.
@@ -27,6 +29,7 @@ The original CSP/HACO material is preserved only as a runnable living example in
 +-- evaluate.py                 wrapper around a task pack's evaluate.py
 +-- requirements.txt            generic base dependencies
 +-- scripts/                    bootstrap, launch, and slot lifecycle scripts
++-- scripts/campaign_log.py     JSONL logger and interactive report renderer
 +-- toolkit/                    initializer interview and task templates
 +-- examples/csp/               optional runnable CSP example task pack
 +-- tasks/                      generated task packs for active campaigns
@@ -149,6 +152,37 @@ scripts/autoresearch_launch.sh task=<slug> run_tag=<run_tag> -- <agent command..
 
 Use `agent=prompt` to print the persistent orchestration prompt without running
 an agent.
+
+## Interactive campaign report
+
+The lifecycle scripts automatically append events to:
+
+```
+runs/<task>/<run_tag>/campaign_events.jsonl
+```
+
+They also refresh a self-contained HTML report:
+
+```
+runs/<task>/<run_tag>/report.html
+```
+
+The report combines the git-DAG search memory with logged lifecycle events. It
+shows clickable idea nodes, green rings for nodes that raised the campaign-best
+metric, green parent-inspiration curves, and a campaign-best metric curve over
+wall-clock time.
+
+Rebuild the report manually:
+
+```
+python3 scripts/campaign_log.py render --task <slug> --run-tag <run_tag>
+```
+
+Add a manual note event:
+
+```
+python3 scripts/campaign_log.py log --task <slug> --run-tag <run_tag> --event note --message "<note>"
+```
 
 ## License
 

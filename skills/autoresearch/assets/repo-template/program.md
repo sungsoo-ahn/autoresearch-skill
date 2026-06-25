@@ -2,7 +2,9 @@
 
 The git commit DAG under `agent/<task_slug>/<run_tag>/*` is the search graph
 and the memory. `git log` plus per-node artifacts under
-`runs/<task_slug>/<run_tag>/<sha>/` are the only state stores. The orchestrator
+`runs/<task_slug>/<run_tag>/<sha>/` are the durable search state stores. The
+campaign event log at `runs/<task_slug>/<run_tag>/campaign_events.jsonl` and the
+interactive `report.html` are derived observability surfaces. The orchestrator
 decides operator, parent, and slot assignment; execution happens only through
 `scripts/*.sh` and the role agents below. Optional adapters may provide concrete
 prompt files for these roles.
@@ -117,3 +119,9 @@ scripts/slot_reconcile.sh <task_slug> <run_tag> <n_slots>
 
 Running slots keep their live event; stale worktrees are cleaned and treated as
 idle.
+
+Render or refresh the interactive report at any time:
+
+```
+python3 scripts/campaign_log.py render --task <task_slug> --run-tag <run_tag>
+```

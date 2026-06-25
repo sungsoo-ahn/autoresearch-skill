@@ -36,4 +36,12 @@ else
   setsid bash -c "timeout ${os_timeout} '${py}' '${WT}/candidate.py' --max_minutes ${max_minutes} --run_name staging --task_dir '${WT}/${task_path}' --data_dir '${WT}/data' > '${WT}/runs/staging/run.log' 2>&1; echo \"slot=${N} exit=\$?\" >> '${repo}/.slots/events.log'" >/dev/null 2>&1 &
 fi
 
+python3 scripts/campaign_log.py log \
+  --task "$task_slug" \
+  --run-tag "$run_tag" \
+  --event slot_run \
+  --slot "$N" \
+  --message "candidate launched on ${slot_device} (${device_mode}); os_timeout=${os_timeout}s" \
+  --no-render || true
+
 echo "slot_run launched: slot=${N} task=${task_slug} device=${slot_device} mode=${device_mode} os_timeout=${os_timeout}s"
