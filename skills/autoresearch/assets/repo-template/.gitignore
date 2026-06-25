@@ -4,6 +4,7 @@ runs/
 checkpoints/
 wandb/
 repo_structure_report.html
+.omx/
 
 # Python caches / venv
 __pycache__/

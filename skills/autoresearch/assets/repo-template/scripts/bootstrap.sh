@@ -166,4 +166,5 @@ with open("${run_root}/campaign.json", "w", encoding="utf-8") as fh:
 PY
 
 echo "bootstrap ok: task=${task} run_tag=${run_tag} device=${device_mode} devices=${devices} n_slots=${n_slots} vram_total_mb=${vram_total_mb} max_minutes=${max_minutes} smoke_seconds=${smoke_seconds} noise_sigma=${noise_sigma}"
-echo "next: scripts/autoresearch_launch.sh task=${task} run_tag=${run_tag}"
+echo "next: start the persistent Bash round loop:"
+echo "  scripts/autoresearch_launch.sh task=${task} run_tag=${run_tag}"

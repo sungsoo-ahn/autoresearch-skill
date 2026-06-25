@@ -63,6 +63,19 @@ primary_metric: <float>
 Use `primary_metric: nan` for invalid or timed-out evaluations when the
 candidate can exit cleanly.
 
+## Baseline Evidence
+
+Before a task pack is considered ready for bootstrap, prepare the data and score
+at least one cheap valid baseline through the fixed evaluator. Prefer measuring:
+
+- a trivial baseline such as mean, constant, majority-class, or random policy;
+- one simple domain baseline if it is cheap and dependency-light;
+- the expected invalid-output behavior when practical.
+
+Record the command and measured primary metric in `task.md` or `methods.md`.
+If a baseline is impossible to run during initialization, state the concrete
+reason and the conservative assumption that replaces it.
+
 ## Validation Rules
 
 Run the generated repo validator:

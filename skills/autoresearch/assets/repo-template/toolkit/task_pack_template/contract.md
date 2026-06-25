@@ -23,6 +23,9 @@ primary_metric: <float>
 ## Evaluation
 
 Define the fixed evaluator command and invalid-output behavior.
+State whether candidates may call the evaluator during a run, whether hidden
+labels or private files exist, and which files candidates must never read
+directly.
 
 ## Constraints
 

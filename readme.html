@@ -380,7 +380,8 @@ cp -R skills/autoresearch "${CODEX_HOME:-$HOME/.codex}/skills/autoresearch"</cod
       <p>
         The scaffolder creates a generated autoresearch repo from the bundled
         template. By default it initializes git on <code>agent/root</code> and
-        creates the initial commit <code>Initialize autoresearch repo</code>.
+        creates the initial commit
+        <code>Create a bootstrap-ready autoresearch harness</code>.
       </p>
       <pre><code>python skills/autoresearch/scripts/scaffold_repo.py \
   --target /path/to/new-repo \
@@ -413,10 +414,15 @@ cp -R skills/autoresearch "${CODEX_HOME:-$HOME/.codex}/skills/autoresearch"</cod
           </tr>
           <tr>
             <td><code>--force</code></td>
-            <td>Allows copying into a non-empty target after the caller accepts overwrite risk.</td>
+            <td>Allows copying into a target with user files after the caller accepts overwrite risk.</td>
           </tr>
         </tbody>
       </table>
+      <p class="small">
+        Targets that contain only <code>.omx/</code> or <code>.DS_Store</code>
+        are treated as safe runtime-state directories and are preserved without
+        requiring <code>--force</code>.
+      </p>
     </section>
 
     <section id="task-packs">
@@ -450,7 +456,7 @@ cp -R skills/autoresearch "${CODEX_HOME:-$HOME/.codex}/skills/autoresearch"</cod
           </tr>
           <tr>
             <td><code>methods.md</code></td>
-            <td>Prior methods, baselines, and novelty boundary for idea generation.</td>
+            <td>Prior methods, measured baselines, and novelty boundary for idea generation.</td>
           </tr>
           <tr>
             <td><code>prepare.py</code></td>
@@ -493,6 +499,12 @@ cp -R skills/autoresearch "${CODEX_HOME:-$HOME/.codex}/skills/autoresearch"</cod
         Do not leave placeholders such as <code>TODO</code>, <code>TBD</code>,
         <code>example_slug</code>, or vague metric names in generated task
         packs. Unknown facts should become concrete conservative assumptions.
+      </div>
+      <div class="callout">
+        Before bootstrap, run the task preparation path and score at least one
+        cheap valid baseline through the fixed evaluator. Record the measured
+        command, artifact path, and primary metric in <code>task.md</code> or
+        <code>methods.md</code>.
       </div>
     </section>
 
@@ -554,15 +566,27 @@ cp -R skills/autoresearch "${CODEX_HOME:-$HOME/.codex}/skills/autoresearch"</cod
 scripts/bootstrap.sh task=&lt;slug&gt; run_tag=&lt;run_tag&gt; device=gpu gpus=0,1</code></pre>
       <h3>Launch and resume</h3>
       <p>
-        After bootstrap, use the generated launch script. With no agent command
-        it prints a persistent orchestration prompt for any coding-agent UI.
+        After bootstrap, use the generated launch script. With no agent command,
+        it runs local <code>codex exec</code> automatically as a persistent Bash
+        round loop. Each round writes a fresh prompt, exports
+        <code>AUTORESEARCH_ROUND</code>, runs one agent process, reconciles
+        slots, sleeps, and repeats until the user stops it or repeated command
+        failures hit
+        <code>max_failures</code>.
       </p>
       <pre><code>scripts/autoresearch_launch.sh task=&lt;slug&gt; run_tag=&lt;run_tag&gt;</code></pre>
       <p>
-        To keep a CLI-based agent running, pass the command after
-        <code>--</code>. The launcher repeats indefinitely by default
-        (<code>max_turns=0</code>) and stops only when the user interrupts it or
-        repeated command failures hit <code>max_failures</code>.
+        Use <code>max_rounds=1</code> for one bounded agent round.
+      </p>
+      <pre><code>scripts/autoresearch_launch.sh task=&lt;slug&gt; run_tag=&lt;run_tag&gt; max_rounds=1</code></pre>
+      <p>
+        <code>max_turns=1</code> remains accepted as a compatibility alias.
+      </p>
+      <p>
+        Set <code>AUTORESEARCH_AGENT_CMD</code> or pass an explicit CLI command
+        after <code>--</code> to use a different agent. Use
+        <code>agent=prompt</code> to print the persistent orchestration prompt
+        without running an agent.
       </p>
       <pre><code>scripts/autoresearch_launch.sh task=&lt;slug&gt; run_tag=&lt;run_tag&gt; -- &lt;agent command...&gt;</code></pre>
     </section>
@@ -613,11 +637,13 @@ scripts/bootstrap.sh task=&lt;slug&gt; run_tag=&lt;run_tag&gt; device=gpu gpus=0
       </p>
       <pre><code>python3 -B -c 'import pathlib; [compile(pathlib.Path(p).read_text(), p, "exec") for p in ["skills/autoresearch/scripts/scaffold_repo.py", "skills/autoresearch/assets/repo-template/prepare.py", "skills/autoresearch/assets/repo-template/evaluate.py"]]'
 bash -n skills/autoresearch/assets/repo-template/scripts/*.sh
+tmp="$(mktemp -d)" && mkdir "$tmp/repo" "$tmp/repo/.omx" && python skills/autoresearch/scripts/scaffold_repo.py --target "$tmp/repo" --name Smoke --no-git
 ruby -ryaml -e 'front = File.read("skills/autoresearch/SKILL.md").match(/\A---\n(.*?)\n---/m)[1]; YAML.safe_load(front); puts "skill yaml ok"'</code></pre>
       <div class="callout">
         A complete smoke check is to scaffold one default repo and one repo with
         <code>--adapter claude --include-csp-example</code>, then confirm both
-        are clean git repos on <code>agent/root</code>.
+        are clean git repos on <code>agent/root</code> with the Lore-format
+        initial commit.
       </div>
     </section>
   </main>

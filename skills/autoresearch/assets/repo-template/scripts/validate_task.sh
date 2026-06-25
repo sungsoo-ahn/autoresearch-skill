@@ -69,4 +69,37 @@ for arg in sys.argv[1:]:
     path = pathlib.Path(arg)
     compile(path.read_text(encoding="utf-8"), str(path), "exec")
 PY
+
+python3 - "$task_dir" "${required[@]}" <<'PY'
+import pathlib
+import sys
+
+task_dir = pathlib.Path(sys.argv[1])
+required = sys.argv[2:]
+blocked = (
+    "example_slug",
+    "Human-readable task name",
+    "<Task name>",
+    "State the research objective",
+    "Describe data sources",
+    "Define the primary metric",
+    "List required files or directories",
+    "Define what would count as a useful campaign result",
+    "Record conservative assumptions made during initialization",
+    "List known methods, baselines, and approaches",
+    "Define exactly which files candidates may read",
+    "Task-specific setup script template",
+    "Task-specific fixed evaluator template",
+    "replace this template",
+    "TBD",
+    "TODO",
+)
+
+for name in required:
+    path = task_dir / name
+    text = path.read_text(encoding="utf-8")
+    for marker in blocked:
+        if marker in text:
+            raise SystemExit(f"validate_task: placeholder marker {marker!r} remains in {path}")
+PY
 echo "validate_task ok: ${task_dir}"

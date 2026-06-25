@@ -11,6 +11,8 @@ Recommended checks:
 5. Run the task evaluator or a lightweight parser on that artifact.
 6. Check memory use against `vram_total_mb` for GPU runs or available system
    memory for CPU runs.
+7. Inspect for direct reads of hidden labels, private directories, external
+   datasets, or artifacts from another task/run.
 
 The `smoke` subagent must write diagnostics to:
 

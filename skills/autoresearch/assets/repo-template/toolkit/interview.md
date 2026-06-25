@@ -19,7 +19,7 @@ You must lock:
 - resource constraints: CPU/GPU assumptions, memory, wall-clock budget,
   package policy, and whether GPU is required or merely preferred
 - what data candidates may read during training and evaluation
-- prior methods, baselines, and novelty boundaries for `idea`
+- prior methods, measured baselines, and novelty boundaries for `idea`
 - smoke checks that cheaply catch broken candidates
 - known failure modes and invalid-output handling
 
@@ -31,6 +31,10 @@ Create a complete task pack in `tasks/<slug>/` using the files in
 ```
 scripts/validate_task.sh tasks/<slug>
 ```
+
+Also run the task's preparation path and score at least one cheap baseline
+through the fixed evaluator before calling the pack ready. Record the measured
+primary metric and command in `task.md` or `methods.md`.
 
 Do not leave placeholders like `TBD` or `TODO` in the generated task pack.
 If a fact is genuinely unknown, record a concrete conservative assumption in

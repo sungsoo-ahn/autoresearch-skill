@@ -42,6 +42,9 @@ the actual skill path.
 Use `--adapter claude` only when the user wants Claude Code prompts/settings in
 the generated repo. Omit it for an agent-agnostic repo. Use
 `--include-csp-example` only when the user wants a runnable example task pack.
+The scaffolder treats an existing target containing only runtime metadata
+(`.omx/` or `.DS_Store`) as safe and preserves those entries. Any other
+pre-existing entry still blocks scaffolding unless `--force` is used.
 
 ## Generate First Task Pack
 
@@ -61,6 +64,17 @@ Read `task-pack.md` before writing these files. After writing, run:
 ```bash
 scripts/validate_task.sh tasks/<slug>
 ```
+
+Then run the task-specific setup and evaluator smoke path. At minimum:
+
+```bash
+python prepare.py --task_dir tasks/<slug> --out_dir data/<slug>
+python tasks/<slug>/evaluate.py --run_dir runs/<baseline> --data_dir data/<slug>
+```
+
+The baseline artifact may be mean, constant, random, or another cheap
+task-appropriate predictor. Record measured baseline scores in `task.md` or
+`methods.md`; do not leave guessed ranges as the only evidence.
 
 ## Bootstrap Instructions To Return
 
@@ -90,15 +104,30 @@ For a bundled example:
 scripts/bootstrap.sh task=csp task_path=examples/csp run_tag=<run_tag>
 ```
 
-After bootstrap, tell the user to launch or resume the campaign with:
+After bootstrap, tell the user to launch or resume the campaign with the
+generated persistent Bash round loop:
 
 ```bash
 scripts/autoresearch_launch.sh task=<slug> run_tag=<run_tag>
 ```
 
-This prints a persistent orchestration prompt when no agent command is supplied.
-It can also repeatedly invoke an agent CLI:
+Initialization must specify that this command owns autonomous execution. The
+launcher writes a fresh prompt for each round, exports `AUTORESEARCH_ROUND`,
+`AUTORESEARCH_TASK`, and `AUTORESEARCH_RUN_TAG`, runs one agent process with the
+prompt on stdin, reconciles slots, sleeps, and repeats until the user stops it,
+`max_rounds` is reached, or repeated command failures hit `max_failures`.
+`max_turns` is still accepted as a compatibility alias. Use `max_rounds=1` for
+one bounded agent round:
+
+```bash
+scripts/autoresearch_launch.sh task=<slug> run_tag=<run_tag> max_rounds=1
+```
+
+It can also repeatedly invoke an explicit agent CLI:
 
 ```bash
 scripts/autoresearch_launch.sh task=<slug> run_tag=<run_tag> -- <agent command...>
 ```
+
+Use `agent=prompt` to print the persistent orchestration prompt without running
+an agent.

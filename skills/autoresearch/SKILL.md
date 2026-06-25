@@ -45,17 +45,28 @@ python skills/autoresearch/scripts/scaffold_repo.py \
 
 `--adapter claude` is optional. Omit it for an agent-agnostic repository.
 `--include-csp-example` is optional. Omit it for a blank starter repository.
+If the target directory contains only Codex/OMX runtime state such as `.omx/`,
+the scaffolder preserves it and proceeds without `--force`; otherwise non-empty
+targets still require explicit `--force`.
 
 Validate generated task packs with the generated repo's
 `scripts/validate_task.sh`.
+For a first task pack, also run the task `prepare.py` path and score at least
+one simple baseline through `evaluate.py`; record measured baseline scores in
+`task.md` or `methods.md` before bootstrap.
 After bootstrap, use the generated repo's `scripts/autoresearch_launch.sh` to
-produce a persistent prompt or repeatedly invoke an agent command.
+start the persistent Bash round loop. Each round invokes one agent process with
+the campaign prompt on stdin, exports `AUTORESEARCH_ROUND`, reconciles slots,
+then sleeps before the next round. It uses local `codex exec` by default. Pass
+an explicit command after `--` to use a different agent, or use `agent=prompt`
+to print the persistent prompt without running an agent.
 
 ## Discipline
 
 - Interview until objective, data, metric, artifacts, compute constraints, and
   task safety rules are explicit.
-- Establish a baseline before autonomous improvement.
+- Establish and record at least one measured baseline before autonomous
+  improvement.
 - Keep task-specific rules in task packs; keep reusable process in this skill.
 - Leave run-loop execution and reporting to the generated repository unless the
   user explicitly asks to inspect or modify the template.

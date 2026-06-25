@@ -32,9 +32,10 @@ The original CSP/HACO material is preserved only as a runnable living example in
 +-- tasks/                      generated task packs for active campaigns
 ```
 
-Runtime directories are ignored by git: `data/`, `runs/`, `.worktrees/`,
-`.slots/`, and virtual environments. Generated task packs under `tasks/` should
-be reviewed and committed before bootstrap so campaign worktrees can read them.
+Runtime directories are ignored by git: `.omx/`, `data/`, `runs/`,
+`.worktrees/`, `.slots/`, and virtual environments. Generated task packs under
+`tasks/` should be reviewed and committed before bootstrap so campaign worktrees
+can read them.
 
 ## Task packs
 
@@ -86,6 +87,11 @@ scripts/validate_task.sh examples/csp
 scripts/validate_task.sh tasks/<slug>
 ```
 
+Before bootstrap, also run the task setup and score at least one cheap baseline
+through the fixed evaluator. Record measured baseline scores in the task pack so
+future `idea`, `draft`, `improve`, and `analyze` roles have a concrete starting
+point.
+
 ## Launch a campaign
 
 Scaffolded repositories are initialized on `agent/root`. Bootstrap requires a
@@ -117,22 +123,32 @@ For an example task:
 scripts/bootstrap.sh task=csp task_path=examples/csp run_tag=<run_tag>
 ```
 
-Then start your coding agent and instruct it:
+Then start or resume the persistent Bash round loop:
 
 ```
 scripts/autoresearch_launch.sh task=<slug> run_tag=<run_tag>
 ```
 
-Without an agent command, the launcher prints a persistent orchestration prompt
-that can be pasted into any coding-agent UI. To repeatedly invoke an agent CLI
-that accepts prompts on standard input:
+By default the launcher uses local `codex exec`. Each round writes a fresh
+campaign prompt, exports `AUTORESEARCH_ROUND`, runs one agent process, reconciles
+slots, sleeps, and repeats until the user stops it or repeated command failures
+hit `max_failures`. Use `max_rounds=1` for one bounded agent round:
+
+```
+scripts/autoresearch_launch.sh task=<slug> run_tag=<run_tag> max_rounds=1
+```
+
+`max_turns=1` remains accepted as a compatibility alias.
+
+Set `AUTORESEARCH_AGENT_CMD` or pass an explicit command after `--` to use a
+different agent CLI that accepts prompts on standard input:
 
 ```
 scripts/autoresearch_launch.sh task=<slug> run_tag=<run_tag> -- <agent command...>
 ```
 
-The launcher defaults to `max_turns=0`, meaning it keeps relaunching the agent
-until the user stops it or repeated command failures hit `max_failures`.
+Use `agent=prompt` to print the persistent orchestration prompt without running
+an agent.
 
 ## License
 

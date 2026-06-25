@@ -12,6 +12,11 @@ Describe data sources, split policy, setup command behavior, and licenses.
 
 Define the primary metric, direction, expected range, and evaluator timeout.
 
+## Measured baselines
+
+List each baseline command, artifact path, and measured primary metric. Include
+at least one cheap valid baseline before bootstrap.
+
 ## Candidate artifacts
 
 List required files or directories under `runs/<run_name>/`.

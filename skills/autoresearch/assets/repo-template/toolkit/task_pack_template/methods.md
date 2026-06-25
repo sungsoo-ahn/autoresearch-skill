@@ -10,4 +10,5 @@ For each item, include:
 - paradigm
 - architecture or implementation family
 - references and official code when available
+- measured primary metric or reason the method was not measured
 - what would count as a duplicate versus a novel adaptation
